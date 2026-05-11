@@ -1,0 +1,38 @@
+name: Android release assets
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "android-*"
+
+permissions:
+  contents: write
+
+jobs:
+  android-release-assets:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake cmake curl git libtool make ninja-build pkg-config rsync unzip zip
+
+      - name: Build Android mosh binaries
+        run: android/build-android-release-assets.sh
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mosh-android-release-assets
+          path: build/android-release/mosh-android-*.zip
+
+      - name: Upload GitHub release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: build/android-release/mosh-android-*.zip
