@@ -71,7 +71,7 @@ jobs:
         run: cp "${{ steps.attestation.outputs.bundle-path }}" build/android-release/mosh-android-attestation.json
 
       - name: Upload workflow artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mosh-android-release-assets
           path: |
