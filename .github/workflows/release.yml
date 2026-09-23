@@ -9,7 +9,7 @@ on:
 
 jobs:
   macports-cache:
-    runs-on: macos-12
+    runs-on: macos-26
 
     steps:
     - uses: actions/checkout@v2
