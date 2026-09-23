@@ -13,6 +13,9 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   android-release-assets:
@@ -41,11 +44,40 @@ jobs:
       - name: Build Android mosh binaries
         run: android/build-android-release-assets.sh
 
+      - name: Generate SHA-256 checksums
+        working-directory: build/android-release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p contents
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
+            archive="mosh-android-${abi}.zip"
+            unzip -p "$archive" mosh-client > "contents/mosh-client-${abi}"
+            unzip -p "$archive" terminfo.zip > "contents/terminfo-${abi}.zip"
+          done
+          sha256sum mosh-android-*.zip contents/* > SHA256SUMS
+          sha256sum --check SHA256SUMS
+
+      - name: Attest release assets
+        id: attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            build/android-release/mosh-android-*.zip
+            build/android-release/contents/*
+            build/android-release/SHA256SUMS
+
+      - name: Save attestation bundle
+        run: cp "${{ steps.attestation.outputs.bundle-path }}" build/android-release/mosh-android-attestation.json
+
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mosh-android-release-assets
-          path: build/android-release/mosh-android-*.zip
+          path: |
+            build/android-release/mosh-android-*.zip
+            build/android-release/SHA256SUMS
+            build/android-release/mosh-android-attestation.json
           if-no-files-found: error
 
       - name: Upload GitHub release assets
@@ -53,5 +85,8 @@ jobs:
         with:
           tag_name: ${{ inputs.release_tag || github.ref_name }}
           generate_release_notes: true
-          files: build/android-release/mosh-android-*.zip
+          files: |
+            build/android-release/mosh-android-*.zip
+            build/android-release/SHA256SUMS
+            build/android-release/mosh-android-attestation.json
           fail_on_unmatched_files: true

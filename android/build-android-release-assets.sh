@@ -111,7 +111,8 @@ build_zlib() {
     -DCMAKE_INSTALL_PREFIX="$prefix" \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_C_FLAGS="$CFLAGS"
+    -DCMAKE_C_FLAGS="$CFLAGS" \
+    -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG
   cmake --build "$build_dir/zlib" --target install --parallel "$NCPU"
 }
 
@@ -145,6 +146,8 @@ build_protobuf() {
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DCMAKE_C_FLAGS="$CFLAGS" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+    -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG \
+    -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG \
     -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++" \
     -Dprotobuf_BUILD_TESTS=OFF \
     -Dprotobuf_BUILD_SHARED_LIBS=OFF \
@@ -312,6 +315,7 @@ build_mosh_client() {
 
   mkdir -p "$package_dir"
   cp "$src_dir/src/frontend/mosh-client" "$package_dir/mosh-client"
+  "$STRIP" --strip-all "$package_dir/mosh-client"
   chmod 755 "$package_dir/mosh-client"
   cp "$prefix/share/terminfo.zip" "$package_dir/terminfo.zip"
 }
@@ -370,7 +374,7 @@ ANDROID_API="${ANDROID_PLATFORM#android-}"
 TOOLCHAIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$(host_tag)"
 [[ -d "$TOOLCHAIN" ]] || die "could not find NDK LLVM toolchain at $TOOLCHAIN"
 
-NCPU="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)"
+NCPU="${NCPU:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)}"
 SOURCES_DIR="$WORK_DIR/sources"
 mkdir -p "$SOURCES_DIR"
 rm -f "$WORK_DIR"/mosh-android-*.zip
@@ -393,15 +397,17 @@ for abi in $ABIS; do
   AR="$TOOLCHAIN/bin/llvm-ar"
   RANLIB="$TOOLCHAIN/bin/llvm-ranlib"
   READELF="$TOOLCHAIN/bin/llvm-readelf"
+  STRIP="$TOOLCHAIN/bin/llvm-strip"
 
   [[ -x "$CC" ]] || die "missing compiler $CC"
   [[ -x "$CXX" ]] || die "missing compiler $CXX"
+  [[ -x "$STRIP" ]] || die "missing strip tool $STRIP"
 
-  COMMON_FLAGS="-fPIC -fPIE -D_FORTIFY_SOURCE=2 -fstack-protector-all -fno-strict-overflow -w"
+  COMMON_FLAGS="-Oz -flto -ffunction-sections -fdata-sections -fPIC -fPIE -D_FORTIFY_SOURCE=2 -fstack-protector-all -fno-strict-overflow -w"
   CFLAGS="$COMMON_FLAGS -std=gnu17"
   CXXFLAGS="$COMMON_FLAGS -std=gnu++17"
   ASMFLAGS="--target=$HOST -w -D_FORTIFY_SOURCE=2 -fPIE -fPIC"
-  LDFLAGS="-pie -Wl,-z,max-page-size=16384"
+  LDFLAGS="-flto -pie -Wl,--gc-sections -Wl,-z,max-page-size=16384"
 
   build_dir="$WORK_DIR/build-$abi"
   prefix="$WORK_DIR/prefix-$abi"
@@ -412,9 +418,12 @@ for abi in $ABIS; do
   build_zlib "$abi" "$prefix" "$build_dir"
   build_protobuf "$abi" "$prefix" "$build_dir"
   build_ncurses "$HOST" "$prefix" "$build_dir"
+  terminfo_file="$prefix/share/terminfo/x/xterm-256color"
+  [[ -f "$terminfo_file" ]] || die "$terminfo_file is missing"
+  rm -f "$prefix/share/terminfo.zip"
   (
     cd "$prefix"
-    zip -q -X -r "$prefix/share/terminfo.zip" share/terminfo
+    zip -q -X -9 "$prefix/share/terminfo.zip" share/terminfo/x/xterm-256color
   )
   build_gmp "$HOST" "$prefix" "$build_dir"
   build_nettle "$HOST" "$prefix" "$build_dir"
