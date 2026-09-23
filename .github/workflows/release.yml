@@ -22,7 +22,7 @@ jobs:
 
     - name: Cache macports
       id: cache-macports
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       env:
         cache-name: cache-macports
       with:
@@ -71,7 +71,7 @@ jobs:
     - name: Restore macports cache
       id: cache-macports
       if: ${{ startsWith(matrix.os, 'macos') }}
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       env:
         cache-name: cache-macports
       with:
