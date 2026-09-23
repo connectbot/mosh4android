@@ -1,7 +1,9 @@
-# Android Release Assets
+# Android Builds and Release Assets
 
-The `android-release-assets` GitHub Actions workflow builds ABI-specific
-archives with the Android NDK:
+The `Android NDK build` GitHub Actions workflow checks every pull request and
+branch push by building all supported ABIs with the Android NDK. It does not
+publish a release. The `Android release assets` workflow builds and uploads
+ABI-specific archives for `android-*` tags:
 
 - `mosh-android-arm64-v8a.zip`
 - `mosh-android-armeabi-v7a.zip`

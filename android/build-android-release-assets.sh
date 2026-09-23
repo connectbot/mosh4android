@@ -6,10 +6,15 @@ WORK_DIR="${WORK_DIR:-"$ROOT_DIR/build/android-release"}"
 ANDROID_PLATFORM="${ANDROID_PLATFORM:-android-24}"
 ABIS="${ABIS:-arm64-v8a armeabi-v7a x86 x86_64}"
 
+# renovate: datasource=github-releases depName=madler/zlib
 ZLIB_VERSION="${ZLIB_VERSION:-v1.3.1}"
+# renovate: datasource=github-releases depName=protocolbuffers/protobuf
 PROTOBUF_VERSION="${PROTOBUF_VERSION:-29.1}"
+# renovate: datasource=github-tags depName=mirror/ncurses
 NCURSES_VERSION="${NCURSES_VERSION:-v6.4}"
+# renovate: datasource=github-tags depName=alisw/GMP
 GMP_VERSION="${GMP_VERSION:-v6.2.1}"
+# renovate: datasource=gitlab-tags depName=gnutls/nettle
 NETTLE_VERSION="${NETTLE_VERSION:-nettle_3.10_release_20240616}"
 
 die() {
