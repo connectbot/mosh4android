@@ -1,0 +1,24 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  customManagers: [
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/^android\\/build-android-release-assets\\.sh$/'],
+      matchStrings: [
+        '# renovate: datasource=(?<datasource>github-releases|github-tags|gitlab-tags) depName=(?<depName>[^\\s]+)\\n[A-Z]+_VERSION="\\$\\{[A-Z]+_VERSION:-(?<currentValue>[^}]+)\\}"',
+      ],
+    },
+  ],
+  packageRules: [
+    {
+      matchManagers: ['github-actions'],
+      matchFileNames: ['!/^\\.github\\/workflows\\/android-/'],
+      enabled: false,
+    },
+    {
+      matchPackageNames: ['gnutls/nettle'],
+      // Nettle includes a release date in tags and also has rc tags.
+      versioning: 'regex:^nettle_(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?_release_(?<build>\\d+)$',
+    },
+  ],
+}

@@ -1,0 +1,25 @@
+name: Android NDK build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  android-build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake cmake curl git libtool make ninja-build pkg-config rsync unzip zip
+
+      - name: Build Android mosh binaries for all ABIs
+        run: android/build-android-release-assets.sh
