@@ -2,6 +2,11 @@ name: Android release assets
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing android-* tag to build and upload to GitHub Releases
+        required: true
+        type: string
   push:
     tags:
       - "android-*"
@@ -15,6 +20,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - name: Check release tag
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: |
+          [[ "$RELEASE_TAG" == android-* ]] || { echo "Expected an android-* tag" >&2; exit 1; }
+          git tag --points-at HEAD | grep -Fx -- "$RELEASE_TAG" >/dev/null || {
+            echo "Tag $RELEASE_TAG does not point to the checked-out commit" >&2
+            exit 1
+          }
 
       - name: Install build tools
         run: |
@@ -29,10 +46,12 @@ jobs:
         with:
           name: mosh-android-release-assets
           path: build/android-release/mosh-android-*.zip
+          if-no-files-found: error
 
       - name: Upload GitHub release assets
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
           generate_release_notes: true
           files: build/android-release/mosh-android-*.zip
+          fail_on_unmatched_files: true

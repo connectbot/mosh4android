@@ -15,3 +15,9 @@ Each archive contains:
 
 These assets are GPL-licensed as part of mosh. Apps that consume them should
 present that license fact before downloading or enabling the binary.
+
+Pushing an `android-*` tag builds the archives and attaches them to a GitHub
+Release for that tag. To build and upload assets for an existing tag, run the
+workflow manually from the repository's default branch and enter the tag in
+the `release_tag` field. GitHub requires the workflow file on the default
+branch before manual runs are available.
