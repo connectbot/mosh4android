@@ -9,7 +9,7 @@ ABIS="${ABIS:-arm64-v8a armeabi-v7a x86 x86_64}"
 # renovate: datasource=github-releases depName=madler/zlib
 ZLIB_VERSION="${ZLIB_VERSION:-v1.3.1}"
 # renovate: datasource=github-releases depName=protocolbuffers/protobuf
-PROTOBUF_VERSION="${PROTOBUF_VERSION:-29.1}"
+PROTOBUF_VERSION="${PROTOBUF_VERSION:-29.6}"
 # renovate: datasource=github-tags depName=mirror/ncurses
 NCURSES_VERSION="${NCURSES_VERSION:-v6.4}"
 # renovate: datasource=github-tags depName=alisw/GMP
