@@ -7,7 +7,7 @@ ANDROID_PLATFORM="${ANDROID_PLATFORM:-android-24}"
 ABIS="${ABIS:-arm64-v8a armeabi-v7a x86 x86_64}"
 
 # renovate: datasource=github-releases depName=madler/zlib
-ZLIB_VERSION="${ZLIB_VERSION:-v1.3.1}"
+ZLIB_VERSION="${ZLIB_VERSION:-v1.3.2}"
 # renovate: datasource=github-releases depName=protocolbuffers/protobuf
 PROTOBUF_VERSION="${PROTOBUF_VERSION:-29.1}"
 # renovate: datasource=github-tags depName=mirror/ncurses
