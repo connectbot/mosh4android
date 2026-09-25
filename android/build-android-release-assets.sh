@@ -15,7 +15,7 @@ NCURSES_VERSION="${NCURSES_VERSION:-v6.4}"
 # renovate: datasource=github-tags depName=alisw/GMP
 GMP_VERSION="${GMP_VERSION:-v6.2.1}"
 # renovate: datasource=gitlab-tags depName=gnutls/nettle
-NETTLE_VERSION="${NETTLE_VERSION:-nettle_3.10.2_release_20250626}"
+NETTLE_VERSION="${NETTLE_VERSION:-nettle_4.0_release_20260205}"
 
 die() {
   echo "error: $*" >&2
